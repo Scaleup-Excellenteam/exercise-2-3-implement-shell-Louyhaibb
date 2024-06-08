@@ -23,6 +23,7 @@ vector<string> parse_command(const string& input) {
 string expand_env_variables(const string& input) {
     string result = input;
     size_t pos = 0;
+    
     while ((pos = result.find('$', pos)) != string::npos) {
         size_t end = result.find_first_of(" \t\n", pos+1);
         string var_name = result.substr(pos+1, (end == string::npos ? result.length() : end) - pos - 1);
@@ -41,11 +42,13 @@ string expand_env_variables(const string& input) {
 void execute_command(const vector<string>& args, bool run_in_background) {
     vector<char*> c_args(args.size() + 1); 
     for (size_t i = 0; i < args.size(); ++i) {
+    
         c_args[i] = const_cast<char*>(args[i].c_str());
     }
     c_args[args.size()] = nullptr; 
 
     pid_t pid = fork();
+    
     if (pid == 0) { 
         execvp(c_args[0], c_args.data());
         exit(EXIT_FAILURE); 
@@ -53,6 +56,7 @@ void execute_command(const vector<string>& args, bool run_in_background) {
         int status;
         waitpid(pid, &status, 0); 
     } else if (pid < 0) {
+    
         std::cerr << "Failed to fork\n" << endl;
     }
 }
